@@ -21,6 +21,8 @@ for num_box in range(1, boxes+1):
     print("num of boxes: ", num_box)
     logging.info("num of boxes: {}".format(num_box))
 
+    total_ways = 0
+
     total_num = 0
     for balls in range(0, num_box + 1):
         rng = []
@@ -28,6 +30,7 @@ for num_box in range(1, boxes+1):
         p = set(i for i in itertools.permutations(rng, num_box) if sum(i) == balls)
 
         #print("    total: ", len(p))
+        total_ways = total_ways + len(p)
         rule_p = []
 
         for i in p:
@@ -47,6 +50,7 @@ for num_box in range(1, boxes+1):
         logging.info("{} balls has {} ways".format(balls, len(rule_p)))
         logging.info("all combinations: {}".format(rule_p))
     logging.info("total number: {}\n".format(total_num))
+    logging.info("total ways: {}, and ratio is {}\n".format(total_ways, total_num/total_ways))
         
 #plt.figure(1)
 #k = np.arange(0, boxes+1, 1)
