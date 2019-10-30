@@ -21,18 +21,30 @@ for num_box in range(1, boxes+1):
     print("num of boxes: ", num_box)
     logging.info("num of boxes: {}".format(num_box))
 
-    total_ways = 0
+    total_rule = 0
+    total = []
 
-    total_num = 0
     for balls in range(0, num_box + 1):
         rng = []
         rng = list(range(balls+1)) * num_box
-        p = set(i for i in itertools.permutations(rng, num_box) if sum(i) == balls)
+        #p = set(i for i in itertools.permutations(rng, num_box) if sum(i) == balls)
+        p = []
+
+        for i in itertools.permutations(rng, num_box):
+            if sum(i) == balls:
+                total.append(i)
+                flag = True
+                #print(i, len(i))
+                for t in range(0, len(i)-1):
+                    if (i[t]>t+1):
+                        flag = False
+                if (flag):
+                    p.append(i)
+                print(".", end="")
+        rule_p = set(p)
 
         #print("    total: ", len(p))
-        total_ways = total_ways + len(p)
-        rule_p = []
-
+        '''
         for i in p:
             flag = True
             #print(i, len(i))
@@ -42,16 +54,20 @@ for num_box in range(1, boxes+1):
             if (flag):
                 rule_p.append(i)
             print(".", end="")
-
+        '''
         #print(rule_p)
         print("    ruled: ", len(rule_p), "\n")
         #box[num_box] = len(rule_p)
-        total_num += len(rule_p)
+        #total_num += len(rule_p)
         logging.info("{} balls has {} ways".format(balls, len(rule_p)))
         logging.info("all combinations: {}".format(rule_p))
-    logging.info("total number: {}\n".format(total_num))
-    logging.info("total ways: {}, and ratio is {}\n".format(total_ways, total_num/total_ways))
+        total_rule = total_rule + len(rule_p)
         
+    
+    logging.info("total ruled: {}".format(total_rule))
+    total_ways = len(set(total))
+    logging.info("total ways: {}, and ratio is {}\n".format(total_ways, total_rule/total_ways))
+
 #plt.figure(1)
 #k = np.arange(0, boxes+1, 1)
 
