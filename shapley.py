@@ -13,18 +13,17 @@ from scipy.optimize import fsolve
 
 import scipy.io as sio
 
+import time
+
 class Pricing(object):
-    def __init__(self, l1, l2, c1, c2, m1, m2, v1, v2):
-        self.l1 = l1
-        self.l2 = l2
-        self.c1 = c1
-        self.c2 = c2
+    def __init__(self, para):
         self.p1 = 0.01
         self.p2 = 0.01
-        self.m1 = m1
-        self.m2 = m2
-        self.v1 = v1
-        self.v2 = v2
+
+        self.l1, self.l2 = para.get('l')
+        self.c1, self.c2 = para.get('c')
+        self.m1, self.m2 = para.get('m')
+        self.v1, self.v2 = para.get('v')
 
     def F1(self, c):
         # return (np.exp(-c))
@@ -53,9 +52,15 @@ class Pricing(object):
         x = q
         return ( (self.c1 + self.c2) * self.l1 * self.F1(x) / (self.l1 * self.F1(x) + self.l2 * self.F2(x)) - x )
 
-    def solver(self):
-        self.p1 = fsolve(self.Phi1, self.m1)
-        self.p2 = fsolve(self.Phi2, self.m2)
+    def solver(self, lvl):
+        self.p1 = fsolve(self.Phi1, lvl)
+        self.p2 = fsolve(self.Phi2, lvl)
+
+        c = self.c1 + self.c2
+
+        if (1-self.F1(c) - (1-self.F1(self.p1)) >= self.l2/self.l1*(self.F2(c))):
+            self.p1 = np.nan
+            self.p2 = np.nan
 
         if (self.F1(self.p1) == 0) or (self.F2(self.p2) == 0):
             return np.nan, np.nan
@@ -65,17 +70,21 @@ class Pricing(object):
         
         
 
-def simu(fnum, l1, l2, c1, c2, m1, m2, v1, v2):
+def simu(fnum, para, s, lvl):
     '''
     print('Input cost 1 and cost 2')
     c = input()
     c1 = int(c.split()[0])
     c2 = int(c.split()[1])
     '''
+    l1, l2 = para.get('l')
+    c1, c2 = para.get('c')
+    m1, m2 = para.get('m')
+    v1, v2 = para.get('v')
 
     # Make data.
-    X = np.arange(1, 100, 0.5)
-    Y = np.arange(1, 100, 0.5)    
+    X = np.arange(1, 100, s)
+    Y = np.arange(1, 100, s)    
     X, Y = np.meshgrid(X, Y)
     samplesize = len(X)
 
@@ -89,26 +98,26 @@ def simu(fnum, l1, l2, c1, c2, m1, m2, v1, v2):
     for x in range(samplesize):
         for y in range(samplesize):
             
-            l1 = X[0][x]
-            l2 = X[0][y]
-            if (l1 >= l2):
-                p = Pricing(l1, l2, c1, c2, m1, m2, v1, v2)
-                Zl1[y][x], Zl2[y][x] = p.solver()
+            para['l'] = (X[0][x], X[0][y])
+            if (X[0][x] >= X[0][y]):
+                p = Pricing(para)
+                Zl1[y][x], Zl2[y][x] = p.solver(lvl)
+
+                a1 = p.l1 * p.F1(p.p1)
+                a2 = p.l2 * p.F2(p.p2)
+                cc = p.p1 * a1 + p.p2 * a2
+                
+                print('l1={}, l2={}, c1={}, c2={}, m1={}, m2={}, v1={}, v2={}'.format(p.l1,p.l2,p.c1,p.c2,p.m1,p.m2,p.v1,p.v2))
+                print('total={}, a1={}, a2={}, F1={}, F2={}'.format(cc, a1, a2, p.F1(p.p1), p.F2(p.p2)))
+                print('P1={}, P2={}'.format(p.p1, p.p2))
+                print(".")
+
             else:
                 Zl1[y][x], Zl2[y][x] = np.nan, np.nan
                 # Zl1[y][x], Zl2[y][x] = 0, 0
                 Zm1[y][x], Zm2[y][x] = np.ma, np.ma
 
-            a1 = p.l1 * p.F1(p.p1)
-            a2 = p.l2 * p.F2(p.p2)
-            cc = p.p1 * a1 + p.p2 * a2
             
-            print('l1={}, l2={}, c1={}, c2={}, m1={}, m2={}, v1={}, v2={}'.format(l1,l2,c1,c2,m1,m2,v1,v2))
-            print('total={}, a1={}, a2={}'.format(cc, a1, a2))
-            print('P1={}, P2={}'.format(p.p1, p.p2))
-
-            # print('T=', fsolve(p.Trival, (p.m1+p.m2)/2) )
-            print(".")
 
 
 
@@ -124,7 +133,7 @@ def simu(fnum, l1, l2, c1, c2, m1, m2, v1, v2):
     # im = grid[0].imshow(Zl1, cmap='gray', vmin=np.nanmin(Zl1)-2, vmax=np.nanmax(Zl1)+2)
     
     im = grid[0].contour(X, Y, Zm1, 0, colors='black', linewidths=0.75)
-    im = grid[0].contour(X, Y, Zl1, 5, colors='black', linewidths=0.75)
+    im = grid[0].contour(X, Y, Zl1, colors='black', linewidths=0.75)
     plt.clabel(im, inline=True, fontsize=8)
 
     grid[0].set_xlabel('High')
@@ -135,7 +144,7 @@ def simu(fnum, l1, l2, c1, c2, m1, m2, v1, v2):
     # im = grid[1].imshow(Zl2, cmap='gray', vmin=np.nanmin(Zl1)-2, vmax=np.nanmax(Zl1)+2)
 
     im = grid[1].contour(X, Y, Zm2, 0, colors='black', linewidths=0.75)
-    im = grid[1].contour(X, Y, Zl2, 2, colors='black', linewidths=0.75)
+    im = grid[1].contour(X, Y, Zl2, colors='black', linewidths=0.75)
     plt.clabel(im, inline=1, fontsize=10)
 
     grid[1].set_xlabel('High')
@@ -215,34 +224,54 @@ def simu(fnum, l1, l2, c1, c2, m1, m2, v1, v2):
 
 
 def main():
-    l1, l2 = 0, 0
-    c1, c2 = 15, 10
-    v1, v2 =np.sqrt(10), np.sqrt(10)
-    m1, m2 = (c1+c2)/2, (c1+c2)/2
+    para = {
+        'l': (0, 0),
+        'c': (15, 15),
+        'v': (15, 15),
+        'm': (25, 25)
+    }
 
-    # simu(1, l1, l2, c1, c2, m1, m2, v1, v2)
-    filename = 1
+    lvl = 0
+    filename = 0
     
-    for i in range(-3, 3):
-        m1, m2 = (c1+i+c2)/2, (c1+i+c2)/2
-        simu(filename, l1, l2, c1+i, c2, m1, m2, v1, v2)
-        filename = filename + 1
-    
-    for i in range(-3, 3):
-        m1, m2 = (c1+i+c2)/2, (c1+i+c2)/2
-        simu(filename, l1, l2, c1, c2+i, m1, m2, v1, v2)
-        filename = filename + 1
+    para = {
+        'l': (0, 0),
+        'c': (15, 15),
+        'v': (15, 15),
+        'm': (25, 25)
+    }
 
-    for i in range(-3, 3):
-        m1, m2 = (c1+i+c2)/2, (c1+i+c2)/2
-        simu(filename, l1, l2, c1+i, c2, m1, m2, v1+i, v2)
+
+    start_time = time.time()
+    # lvl = para.get('m')[0]
+    lvl = 0
+    simu(filename, para, 1, lvl)
+
+    print('--{} seconds--'.format(time.time()-start_time))
+    
+    '''
+    for i in range(-5, 5, 2):
+        para_b = para
+        para_b['m'] = (para['m'][0]+i,para['m'][0]+i)
+        simu(filename, para_b, 1, lvl)
         filename = filename + 1
     
-    for i in range(-3, 3):
-        m1, m2 = (c1+i+c2)/2, (c1+i+c2)/2
-        simu(filename, l1, l2, c1, c2+i, m1, m2, v1, v2+i)
-        filename = filename + 1
 
+    for i in range(0, 20, 5):
+        para_b = para
+        para_b['v'] = (para_b['v'][0]+i,para_b['v'][1]+i)
+        simu(filename, para, 1, lvl)
+        filename = filename + 1
+    
+    for i in range(0, 20, 5):
+        para_b = para
+        para_b['c'] = (para_b['c'][0]+i,para_b['c'][1]+i)
+        # m = (para['c'][0]+para['c'][1])/2
+        # para['m'] = (m,m)
+        simu(filename, para, 1, lvl)
+        filename = filename + 1
+    '''
+    
     
 
 if __name__ == "__main__":
