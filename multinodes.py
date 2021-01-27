@@ -246,17 +246,34 @@ if __name__ == '__main__':
 
     # print(R_f)
 
-    res = {}
-
-    sigma_set = [5,10,15,20]
-    a_range = np.arange(0,10,0.1)
+    sigma_set = [5,10,15,20,25]
+    a_range = np.arange(0,11,0.2)
 
     for sig in sigma_set:    
+        res_a = {}
         w['f'] = sig
         for a_r in a_range:
             w['a'][0,2] = a_r
             R_f = fsolve(T, R_init)
-            res[a_r] = R_f
+            res_a[a_r] = R_f
 
-        with open(f'p_{sigma}.pickle', 'wb') as pickle_file:
-            pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+        with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
+            pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    
+    w['a'] = a
+
+    lambda_set = [1, 2, 3, 4, 5]
+    s_range = np.arange(5,21,0.5)
+
+    for lam in lambda_set:
+        res_s = []
+        w['a'][0,2] = lam
+        for s_r in s_range:
+            w['f'] = s_r
+            R_f = fsolve(T, R_init)
+            res_s[s_r] = R_f
+
+        with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
+            pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+        
+
