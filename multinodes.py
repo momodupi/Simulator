@@ -239,8 +239,8 @@ if __name__ == '__main__':
     # print(phi(w, R))
 
     # R_f = fsolve(T, R_init)
-    # R_f = least_squares(T, R_init, bounds = (0, 100))
+    R_f = least_squares(T, R_init, bounds = (0, 100))
 
-    R_f = T( np.array( [12.40000014,  6.381263  ,  9.82054552,  0.99377401,  5.32556105, 1.6919091 ] ) )
+    # R_f = T( np.array( [12.40000014,  6.381263  ,  9.82054552,  0.99377401,  5.32556105, 1.6919091 ] ) )
 
     print(R_f)
