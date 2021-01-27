@@ -8,6 +8,7 @@ from cvxopt import matrix, solvers
 from sympy import solve, Poly, Eq, Function, exp 
 
 import resource, sys
+import pickle
 
 from itertools import chain, combinations, product
 from copy import copy, deepcopy
@@ -232,15 +233,25 @@ if __name__ == '__main__':
         't': t
     }
     R_init = np.ones(len(players))
-    # m = 100
 
     # players = [12,13,14,23,24,43]
 
     # print(phi(w, R))
 
     # R_f = fsolve(T, R_init)
-    R_f = least_squares(T, R_init, bounds = (0, 100))
+    # R_f = least_squares(T, R_init, bounds = (0, 100))
 
-    # R_f = T( np.array( [12.40000014,  6.381263  ,  9.82054552,  0.99377401,  5.32556105, 1.6919091 ] ) )
+    # R_f = phi( w, np.array( [22.14597448, 32.21572539, 31.6702842 , 10.42220426, 13.39419726, 4.51399027] ) )
 
-    print(R_f)
+    # print(R_f)
+
+    res = {}
+
+    a_range = np.arange(0,3,0.1)
+    for a_r in a_range:
+        w['a'][0,2] = a_r
+        R_f = fsolve(T, R_init)
+        res[a_r] = R_f
+
+    with open('p.pickle', 'wb') as pickle_file:
+        pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
