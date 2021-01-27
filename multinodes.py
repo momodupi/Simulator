@@ -223,7 +223,7 @@ if __name__ == '__main__':
 
     N = len(nei_set)
     players = [12,13,14,23,24,43]
-    m = 1
+    m = 100
 
     w = {
         'a': a,
