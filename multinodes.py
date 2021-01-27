@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from numpy.core.fromnumeric import shape
 from scipy.stats import halfnorm, norm
 from scipy.special import binom
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, brentq, least_squares
 from cvxopt import matrix, solvers
 from sympy import solve, Poly, Eq, Function, exp 
 
@@ -55,8 +55,8 @@ def psi(a, c, t, N):
 def service_rate(R, a, c, t, sigma, N):
     def F(c,r):
         # return r/(self.C+0.01)
-        # rv = halfnorm(0, sigma)
-        rv = norm( c+5, sigma )
+        rv = halfnorm(c, sigma)
+        # rv = norm( c+5, sigma )
         return rv.cdf(r)
     # print(R,a)
     a = (1-np.vectorize(F)(c, R))*a
@@ -188,7 +188,7 @@ def phi(w, R):
     
     res_SS = Net_sol(m, R_s, w, N)
     Th_SS = res_SS['TH']
-    prices =  [ p['v']/Th_SS[ node_set.index(p['p']) ] for p in res ]
+    prices =  [ p['v']/(Th_SS[ node_set.index(p['p']) ]+10e-6) for p in res ]
     return np.array(prices)
 
 
@@ -227,7 +227,7 @@ if __name__ == '__main__':
 
     w = {
         'a': a,
-        'f': 5,
+        'f': 10,
         'c': c,
         't': t
     }
@@ -238,5 +238,9 @@ if __name__ == '__main__':
 
     # print(phi(w, R))
 
-    R_f = fsolve(T, R_init)
+    # R_f = fsolve(T, R_init)
+    # R_f = least_squares(T, R_init, bounds = (0, 100))
+
+    R_f = T( np.array( [12.40000014,  6.381263  ,  9.82054552,  0.99377401,  5.32556105, 1.6919091 ] ) )
+
     print(R_f)
