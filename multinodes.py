@@ -225,10 +225,11 @@ if __name__ == '__main__':
     N = len(nei_set)
     players = [12,13,14,23,24,43]
     m = 100
+    sigma = 10
 
     w = {
         'a': a,
-        'f': 10,
+        'f': sigma,
         'c': c,
         't': t
     }
@@ -247,11 +248,15 @@ if __name__ == '__main__':
 
     res = {}
 
-    a_range = np.arange(0,3,0.1)
-    for a_r in a_range:
-        w['a'][0,2] = a_r
-        R_f = fsolve(T, R_init)
-        res[a_r] = R_f
+    sigma_set = [5,10,15,20]
+    a_range = np.arange(0,10,0.1)
 
-    with open('p.pickle', 'wb') as pickle_file:
-        pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    for sig in sigma_set:    
+        w['f'] = sig
+        for a_r in a_range:
+            w['a'][0,2] = a_r
+            R_f = fsolve(T, R_init)
+            res[a_r] = R_f
+
+        with open(f'p_{sigma}.pickle', 'wb') as pickle_file:
+            pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
