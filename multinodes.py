@@ -103,7 +103,9 @@ def Net_sol(m, R, w, N):
     # p = mu_ij_n / pi_n[:, np.newaxis]
     pi_r = mu_ij_n[t!=-1]
     pi = np.concatenate( (pi_n,pi_r), axis=None )
-    # pi /= np.sum(pi)
+    pi /= np.sum(pi)
+    pi_n = pi[:N] 
+    pi_r = pi[N:]
     # print(pi)
     mu_r = 1/t[t!=-1]
     mu_n = mu_ij_n.dot(np.ones(N))
@@ -262,12 +264,17 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     
     y = np.zeros(shape=(2,len(buff['sh'])))
-    y[0,:] = np.array(buff['sh'])
-    y[1,:] = np.array(buff['th'])
+    print(buff)
+    y1 = np.array(buff['sh'])
+    y2 = np.array(buff['th'])
+
+    ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
+    plt.show()
 
     res = {
         'x': x,
-        'y': y
+        'y1': y1,
+        'y2': y2
     }
     with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
         pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
@@ -280,34 +287,34 @@ if __name__ == '__main__':
 
     # print(R_f)
 
-    # sigma_set = [5,10,15,20,25]
-    # a_range = np.arange(0,11,0.2)
+    sigma_set = [5,10,15,20,25]
+    a_range = np.arange(0,11,0.2)
 
-    # for sig in sigma_set:    
-    #     res_a = {}
-    #     w['f'] = sig
-    #     for a_r in a_range:
-    #         w['a'][0,2] = a_r
-    #         R_f = fsolve(T, R_init)
-    #         res_a[a_r] = R_f
+    for sig in sigma_set:    
+        res_a = {}
+        w['f'] = sig
+        for a_r in a_range:
+            w['a'][0,2] = a_r
+            R_f = fsolve(T, R_init)
+            res_a[a_r] = R_f
 
-    #     with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
-    #         pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+        with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
+            pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
     
-    # w['a'] = a
+    w['a'] = a
 
-    # lambda_set = [1, 2, 3, 4, 5]
-    # s_range = np.arange(5,21,0.5)
+    lambda_set = [1, 2, 3, 4, 5]
+    s_range = np.arange(5,21,0.5)
 
-    # for lam in lambda_set:
-    #     res_s = {}
-    #     w['a'][0,2] = lam
-    #     for s_r in s_range:
-    #         w['f'] = s_r
-    #         R_f = fsolve(T, R_init)
-    #         res_s[s_r] = R_f
+    for lam in lambda_set:
+        res_s = {}
+        w['a'][0,2] = lam
+        for s_r in s_range:
+            w['f'] = s_r
+            R_f = fsolve(T, R_init)
+            res_s[s_r] = R_f
 
-    #     with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
-    #         pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+        with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
+            pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         
 
