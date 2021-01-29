@@ -89,6 +89,7 @@ def Net_sol(m, R, w, N):
     sigma = w['f']
 
     mu_ij_n = service_rate( R, a, c, t, sigma, N )
+    # print('mu', mu_ij_n)
     if mu_ij_n.sum() == 0:
         res = {
             'TH': np.zeros(N**2),
@@ -107,7 +108,7 @@ def Net_sol(m, R, w, N):
     mu_r = 1/t[t!=-1]
     mu_n = mu_ij_n.dot(np.ones(N))
     # print(mu_n, mu_r)
-    # print(mu_n, mu_r)
+
 
     res = {
         'TH': Thpt(m, mu_r, mu_n, pi_r, pi_n, pi),
@@ -150,13 +151,13 @@ def Sh_ij(args):
     
     p_size = len(p_set)
     p_set.remove(p)
-    SS = powerset(p_set)
+    p_p = powerset(p_set)
     # SS_size = len(SS)
 
     # print(SS, p_set, p)
 
     Sh = 0
-    for u in SS:
+    for u in p_p:
         u_l = list(u)
         coeff = binom(p_size-1, len(u_l))
         Sh += (v(u_l+[p], m, w, R, N) - v(u_l, m, w, R, N))/coeff
@@ -176,8 +177,12 @@ def Sh_ij(args):
 
 # print(price)
 
+buff = {
+    'sh' : [],
+    'th': []
+}
 
-def phi(w, R):
+def phi(m, w, R, N):
     R_s = np.zeros(shape=(N,N))
     for i,p in enumerate(players):
         R_s[int(p/10)-1, int(p%10)-1] = R[i]
@@ -189,12 +194,18 @@ def phi(w, R):
     
     res_SS = Net_sol(m, R_s, w, N)
     Th_SS = res_SS['TH']
+
+    for i in res:
+        if i['p'] == 13:
+            buff['sh'].append(i['v'])
+    buff['th'].append(Th_SS[node_set.index(13)])
+
+
     prices =  [ p['v']/(Th_SS[ node_set.index(p['p']) ]+10e-6) for p in res ]
     return np.array(prices)
 
 
-def T(R):
-    return phi(w, R)-R
+
 
 
 if __name__ == '__main__':
@@ -235,9 +246,32 @@ if __name__ == '__main__':
     }
     R_init = np.ones(len(players))
 
-    # players = [12,13,14,23,24,43]
+    def T(R):
+        return phi(w, R, m, N)-R
 
-    # print(phi(w, R))
+    players = [12,13,14,23,24,43]
+
+    # print(phi(m, w, R_init, N))
+
+    x = np.arange(0,20,0.1)
+    for l in x:
+        w['a'][0,2] = l
+        res = phi(m, w, R_init, N)
+        # print(res)
+
+    fig, ax = plt.subplots()
+    
+    y = np.zeros(shape=(2,len(buff['sh'])))
+    y[0,:] = np.array(buff['sh'])
+    y[1,:] = np.array(buff['th'])
+
+    res = {
+        'x': x,
+        'y': y
+    }
+    with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
+        pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+
 
     # R_f = fsolve(T, R_init)
     # R_f = least_squares(T, R_init, bounds = (0, 100))
@@ -262,18 +296,18 @@ if __name__ == '__main__':
     
     # w['a'] = a
 
-    lambda_set = [1, 2, 3, 4, 5]
-    s_range = np.arange(5,21,0.5)
+    # lambda_set = [1, 2, 3, 4, 5]
+    # s_range = np.arange(5,21,0.5)
 
-    for lam in lambda_set:
-        res_s = {}
-        w['a'][0,2] = lam
-        for s_r in s_range:
-            w['f'] = s_r
-            R_f = fsolve(T, R_init)
-            res_s[s_r] = R_f
+    # for lam in lambda_set:
+    #     res_s = {}
+    #     w['a'][0,2] = lam
+    #     for s_r in s_range:
+    #         w['f'] = s_r
+    #         R_f = fsolve(T, R_init)
+    #         res_s[s_r] = R_f
 
-        with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
-            pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    #     with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
+    #         pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         
 
