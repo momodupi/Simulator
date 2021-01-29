@@ -255,21 +255,20 @@ if __name__ == '__main__':
 
     # print(phi(m, w, R_init, N))
 
-    x = np.arange(0,20,0.1)
-    for l in x:
+    for l in np.arange(0,20,0.1):
         w['a'][0,2] = l
         res = phi(m, w, R_init, N)
         # print(res)
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
     
-    y = np.zeros(shape=(2,len(buff['sh'])))
-    print(buff)
+    # y = np.zeros(shape=(2,len(buff['sh'])))
+    # print(buff)
     y1 = np.array(buff['sh'])
     y2 = np.array(buff['th'])
 
-    ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
-    plt.show()
+    # ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
+    # plt.show()
 
     res = {
         'x': x,
@@ -287,7 +286,7 @@ if __name__ == '__main__':
 
     # print(R_f)
 
-    sigma_set = [5,10,15,20,25]
+    sigma_set = [10,15,20,25]
     a_range = np.arange(0,11,0.2)
 
     for sig in sigma_set:    
@@ -303,8 +302,8 @@ if __name__ == '__main__':
     
     w['a'] = a
 
-    lambda_set = [1, 2, 3, 4, 5]
-    s_range = np.arange(5,21,0.5)
+    lambda_set = [2, 4, 6, 8]
+    s_range = np.arange(10,26,0.5)
 
     for lam in lambda_set:
         res_s = {}
