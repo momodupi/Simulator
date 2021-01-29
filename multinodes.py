@@ -253,22 +253,19 @@ if __name__ == '__main__':
 
     players = [12,13,14,23,24,43]
 
-    # print(phi(m, w, R_init, N))
 
-    for l in np.arange(0,20,0.1):
+    x = np.arange(0,10,0.1)
+
+    for l in x:
         w['a'][0,2] = l
         res = phi(m, w, R_init, N)
         # print(res)
 
-    # fig, ax = plt.subplots()
-    
-    # y = np.zeros(shape=(2,len(buff['sh'])))
-    # print(buff)
     y1 = np.array(buff['sh'])
     y2 = np.array(buff['th'])
 
-    # ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
-    # plt.show()
+    ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
+    plt.show()
 
     res = {
         'x': x,
@@ -286,34 +283,34 @@ if __name__ == '__main__':
 
     # print(R_f)
 
-    sigma_set = [10,15,20,25]
-    a_range = np.arange(0,11,0.2)
+    # sigma_set = [10,15,20,25]
+    # a_range = np.arange(0,11,0.2)
 
-    for sig in sigma_set:    
-        res_a = {}
-        w['f'] = sig
-        for a_r in a_range:
-            w['a'][0,2] = a_r
-            R_f = fsolve(T, R_init)
-            res_a[a_r] = R_f
+    # for sig in sigma_set:    
+    #     res_a = {}
+    #     w['f'] = sig
+    #     for a_r in a_range:
+    #         w['a'][0,2] = a_r
+    #         R_f = fsolve(T, R_init)
+    #         res_a[a_r] = R_f
 
-        with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
-            pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    #     with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
+    #         pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
     
-    w['a'] = a
+    # w['a'] = a
 
-    lambda_set = [2, 4, 6, 8]
-    s_range = np.arange(10,26,0.5)
+    # lambda_set = [2, 4, 6, 8]
+    # s_range = np.arange(10,26,0.5)
 
-    for lam in lambda_set:
-        res_s = {}
-        w['a'][0,2] = lam
-        for s_r in s_range:
-            w['f'] = s_r
-            R_f = fsolve(T, R_init)
-            res_s[s_r] = R_f
+    # for lam in lambda_set:
+    #     res_s = {}
+    #     w['a'][0,2] = lam
+    #     for s_r in s_range:
+    #         w['f'] = s_r
+    #         R_f = fsolve(T, R_init)
+    #         res_s[s_r] = R_f
 
-        with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
-            pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    #     with open(f'p_lambda_{lam}.pickle', 'wb') as pickle_file:
+    #         pickle.dump(res_s, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         
 
