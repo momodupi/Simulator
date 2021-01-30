@@ -248,9 +248,9 @@ if __name__ == '__main__':
 
 
     def T(R):
-        return phi(w, R, m, N)-R
+        return phi(m, w, R, N)-R
 
-    players = [12,13,14,23,24,43]
+    # players = [12,13,14,23,24,43]
 
 
     # x = np.arange(0,10,0.1)
