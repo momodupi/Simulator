@@ -179,34 +179,10 @@ def Sh_ij(args):
 
 # print(price)
 
-buff = {
-    'sh' : [],
-    'th': []
-}
-
-def phi(m, w, R, N):
-    R_s = np.zeros(shape=(N,N))
-    for i,p in enumerate(players):
-        R_s[int(p/10)-1, int(p%10)-1] = R[i]
-
-    process_pool = [ {'s': players, 'p': i, 'w': w, 'm': m, 'n': N, 'R': R_s} for i in players ]
-
-    with Pool() as pool:
-        res = pool.map( Sh_ij, process_pool )
-    
-    res_SS = Net_sol(m, R_s, w, N)
-    Th_SS = res_SS['TH']
-
-    for i in res:
-        if i['p'] == 13:
-            buff['sh'].append(i['v'])
-    buff['th'].append(Th_SS[node_set.index(13)])
-
-
-    prices =  [ p['v']/(Th_SS[ node_set.index(p['p']) ]+10e-6) for p in res ]
-    return np.array(prices)
-
-
+# buff = {
+#     'sh' : [],
+#     'th': []
+# }
 
 
 
@@ -248,32 +224,55 @@ if __name__ == '__main__':
     }
     R_init = np.ones(len(players))
 
+    def phi(m, w, R, N):
+        R_s = np.zeros(shape=(N,N))
+        for i,p in enumerate(players):
+            R_s[int(p/10)-1, int(p%10)-1] = R[i]
+
+        process_pool = [ {'s': players, 'p': i, 'w': w, 'm': m, 'n': N, 'R': R_s} for i in players ]
+
+        with Pool() as pool:
+            res = pool.map( Sh_ij, process_pool )
+        
+        res_SS = Net_sol(m, R_s, w, N)
+        Th_SS = res_SS['TH']
+
+        # for i in res:
+        #     if i['p'] == 13:
+        #         buff['sh'].append(i['v'])
+        # buff['th'].append(Th_SS[node_set.index(13)])
+
+
+        prices =  [ p['v']/(Th_SS[ node_set.index(p['p']) ]+10e-6) for p in res ]
+        return np.array(prices)
+
+
     def T(R):
         return phi(w, R, m, N)-R
 
     players = [12,13,14,23,24,43]
 
 
-    x = np.arange(0,10,0.1)
+    # x = np.arange(0,10,0.1)
 
-    for l in x:
-        w['a'][0,2] = l
-        res = phi(m, w, R_init, N)
-        # print(res)
+    # for l in x:
+    #     w['a'][0,2] = l
+    #     res = phi(m, w, R_init, N)
+    #     # print(res)
 
-    y1 = np.array(buff['sh'])
-    y2 = np.array(buff['th'])
+    # y1 = np.array(buff['sh'])
+    # y2 = np.array(buff['th'])
 
-    ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
-    plt.show()
+    # # ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
+    # # plt.show()
 
-    res = {
-        'x': x,
-        'y1': y1,
-        'y2': y2
-    }
-    with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
-        pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    # res = {
+    #     'x': x,
+    #     'y1': y1,
+    #     'y2': y2
+    # }
+    # with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
+    #     pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
 
 
     # R_f = fsolve(T, R_init)
