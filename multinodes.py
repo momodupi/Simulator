@@ -54,13 +54,13 @@ def psi(a, c, t, N):
 
 
 def service_rate(R, a, c, t, sigma, N):
-    def F(c,r):
+    def F(c,sigma, r):
         # return r/(self.C+0.01)
         rv = halfnorm(c, sigma)
         # rv = norm( c+5, sigma )
         return rv.cdf(r)
     # print(R,a)
-    a = (1-np.vectorize(F)(c, R))*a
+    a = (1-np.vectorize(F)(c, sigma, R))*a
     # return a + psi(a, c, t)
     res = a + psi(a, c, t, N)
     # print(res)
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     N = len(nei_set)
     players = [12,13,14,23,24,43]
     m = 100
-    sigma = 10
+    sigma = 10 * np.ones((N,N))
 
     w = {
         'a': a,
@@ -281,59 +281,59 @@ if __name__ == '__main__':
     # players = [12,13,14,23,24,43]
 
 
-    x = np.arange(0,10,0.1)
+    # x = np.arange(0,10,1)
 
-    for l in x:
-        w['a'][0,2] = l
-        buff = phi_one_step(m, w, R_init, N)
-        # print(res)
+    # for l in x:
+    #     w['a'][0,2] = l
+    #     buff = phi_one_step(m, w, R_init, N)
+    #     # print(res)
 
-    y1 = np.array(buff['sh'])
-    y2 = np.array(buff['th'])
+    # y1 = np.array(buff['sh'])
+    # y2 = np.array(buff['th'])
 
-    # ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
-    # plt.show()
+    # # ax = plt.plot(x,y1,'-r', x,y2,'-b', x,y1/y2,'-g')
+    # # plt.show()
 
-    res = {
-        'x': x,
-        'y1': y1,
-        'y2': y2
-    }
-    with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
-        pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    # res = {
+    #     'x': x,
+    #     'y1': y1,
+    #     'y2': y2
+    # }
+    # with open(f'res_R1_x20_s10.pickle', 'wb') as pickle_file:
+    #     pickle.dump(res, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
 
 
-    # R_f = fsolve(T, R_init)
-    # R_f = least_squares(T, R_init, bounds = (0, 100))
+    # # R_f = fsolve(T, R_init)
+    # # R_f = least_squares(T, R_init, bounds = (0, 100))
 
-    # R_f = phi( w, np.array( [22.14597448, 32.21572539, 31.6702842 , 10.42220426, 13.39419726, 4.51399027] ) )
+    # # R_f = phi( w, np.array( [22.14597448, 32.21572539, 31.6702842 , 10.42220426, 13.39419726, 4.51399027] ) )
 
-    # print(R_f)
+    # # print(R_f)
 
-    sigma_set = [10,15,20,25]
-    a_range = np.arange(0,11,0.2)
+    # sigma_set = [10,15,20,25]
+    # a_range = np.arange(0,11,0.2)
 
-    for sig in sigma_set:    
-        res_a = {}
-        w['f'] = sig
-        for a_r in a_range:
-            w['a'][0,2] = a_r
-            R_f = fsolve(T, R_init)
-            res_a[a_r] = R_f
+    # for sig in sigma_set:    
+    #     res_a = {}
+    #     w['f'] = sig
+    #     for a_r in a_range:
+    #         w['a'][0,2] = a_r
+    #         R_f = fsolve(T, R_init)
+    #         res_a[a_r] = R_f
 
-        with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
-            pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+    #     with open(f'p_sigma_{sig}.pickle', 'wb') as pickle_file:
+    #         pickle.dump(res_a, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
     
     w['a'] = a
 
     lambda_set = [2, 4, 6, 8]
-    s_range = np.arange(10,26,0.5)
+    s_range = np.arange(10,50,0.5)
 
     for lam in lambda_set:
         res_s = {}
         w['a'][0,2] = lam
         for s_r in s_range:
-            w['f'] = s_r
+            w['f'][0,2] = s_r
             R_f = fsolve(T, R_init)
             res_s[s_r] = R_f
 
